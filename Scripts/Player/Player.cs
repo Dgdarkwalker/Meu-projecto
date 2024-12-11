@@ -189,8 +189,6 @@ public class Player : MonoBehaviour
         rb.AddForce(new Vector2(rb.velocity.x, forcaDeImpulso), ForceMode2D.Impulse);
     }
 
-
-
     private void Animations()
     {
         // Correndo

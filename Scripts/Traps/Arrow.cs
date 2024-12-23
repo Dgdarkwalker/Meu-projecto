@@ -6,6 +6,7 @@ using UnityEngine;
 public class Arrow : MonoBehaviour
 {
     private Animator anim;
+    public float impulseForce;
 
     private void Awake()
     {
@@ -16,7 +17,7 @@ public class Arrow : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Player.instance.Impulse();
+            Player.instance.Impulse(impulseForce);
             anim.Play("Arrow_hit");
             StartCoroutine(DestroyArrow());
         }

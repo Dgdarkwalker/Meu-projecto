@@ -29,7 +29,6 @@ public class Player : MonoBehaviour
     public bool animandoPuloDuplo;
     public float fimDaAnimacaoPuloDuplo;
     public float duracaoPuloDuplo;
-    public float forcaDeImpulso;
 
     [Header("WallJump")]
     public LayerMask layerDaParede;
@@ -183,10 +182,10 @@ public class Player : MonoBehaviour
         GameManager.instance.GameOver();
     }
 
-    public void Impulse()
+    public void Impulse(float impulseForce)
     {
         rb.velocity = Vector2.zero;
-        rb.AddForce(new Vector2(rb.velocity.x, forcaDeImpulso), ForceMode2D.Impulse);
+        rb.AddForce(new Vector2(rb.velocity.x, impulseForce),ForceMode2D.Impulse);
     }
 
     private void Animations()

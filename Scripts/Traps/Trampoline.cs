@@ -6,6 +6,7 @@ using UnityEngine;
 public class Trampoline : MonoBehaviour
 {
     private Animator anim;
+    public float impulseForce;
 
     private void Awake()
     {
@@ -16,7 +17,7 @@ public class Trampoline : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Player.instance.Impulse();
+            Player.instance.Impulse(impulseForce);
             anim.Play("Trampoline_jump");
             StartCoroutine(Temporizador());
         }

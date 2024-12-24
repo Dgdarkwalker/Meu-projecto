@@ -7,30 +7,36 @@ public class AngryPig : MonoBehaviour
 {
     public Transform target;
     public float runSpeed;
+    public bool running;
     public float walkSpeed;
     private Rigidbody2D rb;
     private Animator animator;
-    public bool attack;
     public bool levandoDano;
-    public int dano;
     public Vector2 direcao;
     public float impulseForce;
+    public bool indoPraDireita;
+    public bool estaNaParede;
+    public Transform verificadorDeParedes;
+    public float tamanhoDoRaio;
+    public LayerMask layerDaParede;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        attack = false;
         levandoDano = false;
-        dano = 0;
     }
 
     private void Update()
     {
         Flip();
         Animations();
-        CheckDistance();
-        Hurt();
+        Walk();
+
+        if (!levandoDano)
+        {
+            Attack();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -38,25 +44,57 @@ public class AngryPig : MonoBehaviour
         if (collision.gameObject.CompareTag("PlayerFoot"))
         {
             levandoDano = true;
+            Hurt();
         }
     }
 
-    private void CheckDistance()
+    private void Attack()
     {
+        Vector2 targetposition = target.position;
+        Vector2 posicaoatual = transform.position;
+        direcao = targetposition - posicaoatual;
+
+        if ((direcao.x <= 5 && direcao.x >= -5) && (direcao.y <= 5 && direcao.y >= -5))
+        {
+            running = true;
+            Vector2 direcaonova = direcao.normalized;
+            rb.velocity = new Vector2(direcaonova.x * runSpeed, direcaonova.y);
+        }
+        else
+        {
+            running = false;
+            Walk();
+        }
+    }
+
+    private void Walk()
+    {
+        estaNaParede = Physics2D.OverlapCircle(verificadorDeParedes.position, tamanhoDoRaio, layerDaParede);
+
         if (!levandoDano)
         {
-            Vector2 targetPosition = target.position;
-            Vector2 posicaoAtual = transform.position;
-            direcao = targetPosition - posicaoAtual;
-
-            if ((direcao.x <= 5 && direcao.x >= -5) && (direcao.y <= 5 && direcao.y >= -5))
+            if (estaNaParede)
             {
-                Vector2 direcaoNova = direcao.normalized;
-                rb.velocity = new Vector2(direcaoNova.x * runSpeed, direcaoNova.y);
+                if (indoPraDireita)
+                {
+                    rb.velocity = new Vector2(-walkSpeed, rb.velocity.y);
+                }
+                else
+                {
+                    rb.velocity = new Vector2(walkSpeed, rb.velocity.y);
+                }
             }
-            else 
+
+            if (!estaNaParede)
             {
-                rb.velocity = Vector2.zero;
+                if (indoPraDireita)
+                {
+                    rb.velocity = new Vector2(walkSpeed, rb.velocity.y);
+                }
+                else
+                {
+                    rb.velocity = new Vector2(-walkSpeed, rb.velocity.y);
+                }
             }
         }
     }
@@ -67,50 +105,50 @@ public class AngryPig : MonoBehaviour
         if (rb.velocity.x > 0)
         {
             transform.localScale = new Vector3(-1f, 1f, 1f);
+            indoPraDireita = true;
+
         }
         if (rb.velocity.x < 0)
         {
             transform.localScale = new Vector3(1f, 1f, 1f);
+            indoPraDireita = false;
         }
     }
 
     private void Hurt()
     {
-        if (levandoDano)
-        {
-            dano += 1;
-            Player.instance.Impulse(impulseForce);
-            StartCoroutine(PararInimigo());
-        }
+        Player.instance.Impulse(impulseForce);
+        StartCoroutine(PararInimigo());
     }
 
     private  IEnumerator PararInimigo()
     {
-
+        rb.velocity = Vector2.zero;
         yield return new WaitForSeconds(1f);
         levandoDano = false;
     }
 
     private void Animations()
     {
-        if (rb.velocity.x != 0 && !levandoDano)
-        {
-            animator.Play("AngryPig_run");
-        }
-
-        if (rb.velocity.x == 0 && !levandoDano)
+        if (rb.velocity.x == 0 && !levandoDano && !running)
         {
             animator.Play("AngryPig_idle");
         }
 
-        if (levandoDano && dano == 1)
+        if (!levandoDano && rb.velocity.x != 0 && running)
+        {
+            animator.Play("AngryPig_run");
+        }
+
+        if (levandoDano)
         {
             animator.Play("AngryPig_hit1");
         }
 
-        if(levandoDano && dano == 2)
+        if (!running)
         {
-            animator.Play("AngryPig_hit2");
+            animator.Play("AngryPig_walk");
         }
+
     }
 }

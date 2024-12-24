@@ -54,7 +54,7 @@ public class AngryPig : MonoBehaviour
         Vector2 posicaoatual = transform.position;
         direcao = targetposition - posicaoatual;
 
-        if ((direcao.x <= 5 && direcao.x >= -5) && (direcao.y <= 5 && direcao.y >= -5))
+        if ((direcao.x <= 3 && direcao.x >= -3) && (direcao.y <= 3 && direcao.y >= -3))
         {
             running = true;
             Vector2 direcaonova = direcao.normalized;
